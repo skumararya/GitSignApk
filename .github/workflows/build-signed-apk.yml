@@ -16,37 +16,27 @@ jobs:
         with:
           node-version: 20.11.0
 
-      - name: Setup Java (required for Android build)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: "temurin"
-          java-version: "17"
+          distribution: temurin
+          java-version: 17
 
       - name: Install dependencies
         run: npm install
 
+      - name: Restore Android Keystore
+        run: |
+          mkdir -p android/app
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Generate Keystore (ONE TIME)
-        run: |
-          keytool -genkeypair -v \
-          -keystore release.keystore \
-          -alias release \
-          -keyalg RSA \
-          -keysize 2048 \
-          -validity 10000 \
-          -storepass ${{ secrets.STORE_PASSWORD }} \
-          -keypass ${{ secrets.KEY_PASSWORD }} \
-          -dname "CN=Satish Arya, OU=Mobile, O=GitBuild, L=Delhi, S=Delhi, C=IN"
-          base64 release.keystore > release.keystore.b64
-          cat release.keystore.b64
-
       - name: Build Signed APK
         env:
-          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-          MYAPP_UPLOAD_KEY_ALIAS: release
-          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd android
           ./gradlew assembleRelease
