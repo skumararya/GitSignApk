@@ -28,10 +28,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Generate Android Keystore
+      - name: Generate Keystore (ONE TIME)
         run: |
           keytool -genkeypair -v \
-          -keystore android/app/release.keystore \
+          -keystore release.keystore \
           -alias release \
           -keyalg RSA \
           -keysize 2048 \
@@ -39,6 +39,8 @@ jobs:
           -storepass ${{ secrets.STORE_PASSWORD }} \
           -keypass ${{ secrets.KEY_PASSWORD }} \
           -dname "CN=Satish Arya, OU=Mobile, O=GitBuild, L=Delhi, S=Delhi, C=IN"
+          base64 release.keystore > release.keystore.b64
+          cat release.keystore.b64
 
       - name: Build Signed APK
         env:
