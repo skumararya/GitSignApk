@@ -28,7 +28,8 @@ jobs:
       - name: Restore Android Keystore
         run: |
           mkdir -p android/app
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | tr -d '\n' | base64 --decode > android/app/release.keystore
+          ls -l android/app/release.keystore
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -39,6 +40,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd android
+          ./gradlew clean
           ./gradlew assembleRelease
 
       - name: Upload APK
