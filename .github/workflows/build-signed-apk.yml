@@ -21,7 +21,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-
+      - name: Check Java
+        run: java -version
       - name: Install dependencies
         run: npm install
 
